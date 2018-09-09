@@ -2,20 +2,17 @@ package AndroidDetector;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.LocalClassDeclarationStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
-import org.jdom2.output.support.SAXTarget;
-import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -23,13 +20,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ImportantSmells {
     private static long qtdSubelementos = 0;
     private static File arquivos[];
     private static File diretorio = null;
     private static SAXBuilder sb = new SAXBuilder();
-
 
     public static void CoupledUIComponent(String pathApp) {
         try {
@@ -96,8 +93,83 @@ public class ImportantSmells {
 
     }
 
-    public static void BrainUIComponent(String pathApp) {
+    public static void FoolAdapter(String pathApp) {
+        try {
+            File arquivos[];
+            File diretorio = new File(pathApp);
+            arquivos = diretorio.listFiles();
 
+            for (File arquivo : arquivos) {
+                CompilationUnit compilationunit = JavaParser.parse(arquivo);
+
+                //Extrai cada Classe analisada pelo CompilationUnit
+                ArrayList<ClassOrInterfaceDeclaration> classes = new ArrayList<ClassOrInterfaceDeclaration>();
+                NodeList<TypeDeclaration<?>> types = compilationunit.getTypes();
+                for (int i = 0; i < types.size(); i++) {
+                    classes.add((ClassOrInterfaceDeclaration) types.get(i));
+                }
+
+                //Para cada uma dessas classes, verifica se ela é um Adapter (ou seja, se ela extende de BaseAdapter).
+                for (ClassOrInterfaceDeclaration classe : classes) {
+
+                    //Como a classe vai ser analisada ainda, não contém smells por enquanto
+                    Boolean isFoolAdapter = false;
+
+                    //Para ver se a classe é um Adapter, precisamos ver se ela extende de BaseAdapter
+                    //Pegamos todas as classes que ela implementa
+                    NodeList<ClassOrInterfaceType> implementacoes = classe.getExtendedTypes();
+                    for (ClassOrInterfaceType implementacao : implementacoes) {
+                        if (implementacao.getName().getIdentifier().equals("BaseAdapter")) {
+                            //Se chegou até aqui, temos certeza de que é um adapter.
+                            //Se a classe que extende do BaseAdapter tiver algum método que não seja sobrescrever um método de interface, é um FlexAdapter.
+                            //Pegamos todos os membros da classe
+                            NodeList<BodyDeclaration<?>> membros = classe.getMembers();
+                            //Verifica se o membro é um método
+                            for (BodyDeclaration<?> membro : membros)
+                                if (membro.isMethodDeclaration()) {
+                                    MethodDeclaration metodo = (MethodDeclaration) membro;
+                                    //Verifica se este método chama getView
+                                    if (metodo.getName().getIdentifier().equals("getView")) {
+
+                                        //Pega o parametro do tipo View e armazena o nome dele
+                                        //Pode ser útil para verificar por findViewById dentro de laços
+                                        Parameter viewParameter = metodo.getParameter(1);
+                                        String nomeParametroView = viewParameter.getName().getIdentifier();
+
+                                        //Pega o bloco de declarações dentro método getView
+                                        BlockStmt body = metodo.getBody().get();
+                                        NodeList<Statement> statements = body.getStatements();
+
+                                        //Itera sobre as declarações até achar expressões
+                                        for (Statement statement : statements) {
+                                            if (statement.isExpressionStmt()) {
+                                                //Se em alguma dessas expressões tiver o texto findViewById
+                                                //Quer dizer que o ViewHolder não está sendo utilizado, o que caracteriza o smell
+                                                if(statement.toString().contains("findViewById(")) {
+                                                    isFoolAdapter = true;
+                                                }
+
+                                                //Se ele infla um Layout em toda chamada ao getView, isso também caracteriza o smell
+                                                if(statement.toString().contains("getLayoutInflater(")) {
+                                                    isFoolAdapter = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                        }
+                    }
+
+                    //Se a classe for um foolAdapter, imprime o erro na tela
+                    if (isFoolAdapter) {
+                        System.out.println("Fool Adapter detectado na classe " + classe.getName().getIdentifier());
+                    }
+                }
+            }
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     public static void FlexAdapter(String pathApp) {
@@ -164,7 +236,6 @@ public class ImportantSmells {
             ex.printStackTrace();
         }
     }
-
 
     public static void GodStyleResource(String pathApp) {
         try {
