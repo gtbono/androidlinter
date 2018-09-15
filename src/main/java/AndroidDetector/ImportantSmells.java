@@ -2,6 +2,8 @@ package AndroidDetector;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.expr.AnnotationExpr;
@@ -19,6 +21,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,6 +94,103 @@ public class ImportantSmells {
             }
         }
 
+    }
+
+    public static void brainUiComponent(String pathApp) {
+        try {
+            File arquivos[];
+            File diretorio = new File(pathApp);
+            arquivos = diretorio.listFiles();
+
+            for (File arquivo : arquivos) {
+                CompilationUnit compilationunit = JavaParser.parse(arquivo);
+
+                //Como a classe vai ser analisada ainda, não contém smells por enquanto
+                Boolean isBrainUiComponent = false;
+
+                ArrayList<String> importsQueNaoDevemEstarNaUi = new ArrayList<>();
+                importsQueNaoDevemEstarNaUi.add("java.io");
+                importsQueNaoDevemEstarNaUi.add("android.database");
+                importsQueNaoDevemEstarNaUi.add("android.support.v4.database");
+                importsQueNaoDevemEstarNaUi.add("android.support.v4.net");
+                importsQueNaoDevemEstarNaUi.add("androidx.sqlite.db");
+
+                //Se tiver determinados tipos de import, já caracteriza o smell
+                NodeList<ImportDeclaration> declaracaoDeImports = compilationunit.getImports();
+                for (ImportDeclaration importDeclarado : declaracaoDeImports) {
+                    for (String importQueNaoDeveEstarNaUi : importsQueNaoDevemEstarNaUi) {
+                        if (importDeclarado.getName().toString().contains(importQueNaoDeveEstarNaUi)) {
+                            isBrainUiComponent = true;
+                        }
+                    }
+                }
+
+                //Extrai cada Classe analisada pelo CompilationUnit
+                ArrayList<ClassOrInterfaceDeclaration> classes = new ArrayList<ClassOrInterfaceDeclaration>();
+                NodeList<TypeDeclaration<?>> types = compilationunit.getTypes();
+                for (int i = 0; i < types.size(); i++) {
+                    classes.add((ClassOrInterfaceDeclaration) types.get(i));
+                }
+
+                //Para cada uma dessas classes, verifica se ela é um Adapter (ou seja, se ela extende de BaseAdapter).
+                for (ClassOrInterfaceDeclaration classe : classes) {
+
+                    //Para ver se a classe é um Adapter, precisamos ver se ela extende de BaseAdapter
+                    //Pegamos todas as classes que ela implementa
+                    NodeList<ClassOrInterfaceType> implementacoes = classe.getExtendedTypes();
+                    for (ClassOrInterfaceType implementacao : implementacoes) {
+                        if (implementacao.getName().getIdentifier().matches("BaseAdapter|Fragment|Activity")) {
+                            //Se chegou até aqui, temos certeza de que é um adapter.
+                            //Se a classe que extende do BaseAdapter tiver algum método que não seja sobrescrever um método de interface, é um FlexAdapter.
+                            //Pegamos todos os membros da classe
+                            NodeList<BodyDeclaration<?>> membros = classe.getMembers();
+
+                            //Verifica se o membro é um método
+                            for (BodyDeclaration<?> membro : membros) {
+                                if (membro.isFieldDeclaration()) {
+                                    FieldDeclaration declaracao = (FieldDeclaration) membro;
+                                    EnumSet<Modifier> modificadores = declaracao.getModifiers();
+                                    for (Modifier modificador : modificadores) {
+                                        if (modificador.name().equals("STATIC")) {
+                                            isBrainUiComponent = true;
+                                        }
+                                    }
+                                }
+
+                                if (membro.isMethodDeclaration()) {
+                                    MethodDeclaration metodo = (MethodDeclaration) membro;
+                                    BlockStmt body = metodo.getBody().get();
+                                    NodeList<Statement> statements = body.getStatements();
+
+                                    //Itera sobre as declarações até achar expressões
+                                    for (Statement statement : statements) {
+                                        if (statement.isExpressionStmt()) {
+                                            //Se tiver chamada ao método com jdbc não pode
+                                            if (statement.toString().contains("jdbc")) {
+                                                isBrainUiComponent = true;
+                                            }
+
+//                                            //Se ele infla um Layout em toda chamada ao getView, isso também caracteriza o smell
+//                                            if (statement.toString().contains("getLayoutInflater(")) {
+//                                                isBrainUiComponent = true;
+//                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        //Se a classe for um foolAdapter, imprime o erro na tela
+                        if (isBrainUiComponent) {
+                            System.out.println("Brain UI Component detectado na classe " + classe.getName().getIdentifier());
+                        }
+                    }
+                }
+            }
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     public static void FoolAdapter(String pathApp) {
