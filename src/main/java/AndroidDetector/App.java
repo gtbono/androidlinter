@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class App {
-    
+
     public void run () {
 
         SmellsIterator iterator = new SmellsIterator(getSmells());
@@ -15,9 +15,13 @@ public class App {
 
     }
 
+    private String getAppDirectory() {
+        return "C:\\Users\\gtbono\\Code\\Cursos-Alura\\Cursos-Alura\\app\\src\\main\\java\\br\\com\\alura\\cursos\\adapter";
+    }
+
     private Set<SmellsInterface> getSmells() {
         Set<SmellsInterface> smellsList = new HashSet<>();
-        smellsList.add(new FlexAdapter());
+        smellsList.add(new FlexAdapter(getAppDirectory()));
         smellsList.add(new FoolAdapter());
         smellsList.add(new BrainUIComponent());
         smellsList.add(new ObscureNames());
