@@ -1,6 +1,7 @@
 package AndroidDetector;
 
-import java.util.HashSet;
+import AndroidDetector.smells.SmellsInterface;
+
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Spliterator;

@@ -1,4 +1,4 @@
-package AndroidDetector;
+package AndroidDetector.smells;
 
 public class ObscureNames implements SmellsInterface {
     @Override

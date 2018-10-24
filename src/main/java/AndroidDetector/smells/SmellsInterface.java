@@ -1,4 +1,4 @@
-package AndroidDetector;
+package AndroidDetector.smells;
 
 public interface SmellsInterface {
 
