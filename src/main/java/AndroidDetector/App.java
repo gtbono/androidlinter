@@ -23,11 +23,12 @@ public class App {
 
     private Set<SmellsInterface> getSmells() {
         Set<SmellsInterface> smellsList = new HashSet<>();
-        smellsList.add(new FlexAdapter(getAppDirectory()));
+       // smellsList.add(new FlexAdapter(getAppDirectory()));
         smellsList.add(new FoolAdapter(getAppDirectory()));
-        smellsList.add(new BrainUIComponent(getAppDirectory()));
-        smellsList.add(new ObscureNames());
-        smellsList.add(new AbscenceOfAnArchitecture());
+       // smellsList.add(new BrainUIComponent(getAppDirectory()));
+       // smellsList.add(new ObscureNames());
+
+       // smellsList.add(new AbscenceOfAnArchitecture());
         return smellsList;
     }
 }

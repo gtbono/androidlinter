@@ -83,8 +83,13 @@ public class BrainUIComponent implements SmellsInterface {
 
             for (var importDaClasse : importsDaClasse) {
                 for (var importProibido : this.importsProibidosNaUi) {
-                    //if (importDaClasse.getName().getQualifier().contains(importProibido)) {
-                    if (importProibido.contains(importDaClasse.getName().getIdentifier())) {
+                    //var stringBuilder = new StringBuilder();
+                    //while (!importDaClasse.getName().getQualifier().toString().isEmpty()) {
+                    //    stringBuilder.append(importDaClasse.getName().getQualifier().toString());
+                    //}
+                    //var fullImportName = stringBuilder.toString();
+                    ////if (importDaClasse.getName().getQualifier().contains(importProibido)) {
+                    if (importProibido.matches(importProibido)) {
                         this.smellLocation.add(classe.getName().getIdentifier());
                         this.smelly = true;
                     }
