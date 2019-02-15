@@ -11,12 +11,12 @@ import java.util.LinkedHashMap;
 
 public class FlexAdapter implements SmellsInterface {
 
-    public ArrayList<String> smellLocation;
+    public ArrayList<String> foundSmellMessage;
     private boolean smelly;
     private String pathApp;
 
     public FlexAdapter(String pathApp) {
-        this.smellLocation = new ArrayList<>();
+        this.foundSmellMessage = new ArrayList<>();
         this.smelly = false;
         this.pathApp = pathApp;
     }
@@ -33,12 +33,13 @@ public class FlexAdapter implements SmellsInterface {
             for (var metodo : metodosDaClasse) {
                 var annotations = metodo.getAnnotations();
                 if (annotations.size() == 0) {
-                    this.smellLocation.add(classe.getName().getIdentifier());
+                    this.foundSmellMessage.add("Flex Adapter: Encontrado método com lógica de negócio [" + metodo.asMethodDeclaration().getNameAsString() + "] na classe " + classe.getName().getIdentifier());
                     this.smelly = true;
                 }
                 for (var annotation : annotations) {
                     if (!annotation.getName().getIdentifier().equals("Override")) {
-                        this.smellLocation.add(classe.getName().getIdentifier());
+                        this.foundSmellMessage.add("Flex Adapter: Encontrado método com lógica de negócio [" + metodo.asMethodDeclaration().getNameAsString() + "] na classe " + classe.getName().getIdentifier()
+                        );
                         this.smelly = true;
                     }
                 }
@@ -48,8 +49,6 @@ public class FlexAdapter implements SmellsInterface {
 
     @Override
     public void run() {
-        System.out.println(this.getClass().toString());
-
             var parser = new Parser();
 
             var fileManager = new FileManager(pathApp);
@@ -61,11 +60,9 @@ public class FlexAdapter implements SmellsInterface {
             findSmell(metodos);
 
             if(isSmelly()) {
-                System.out.println("Flex Adapter detectado nas classes:");
-                for (var smellyClass : this.smellLocation) {
-                    System.out.println(smellyClass);
+                for (var message : this.foundSmellMessage) {
+                    System.out.println(message);
                 }
-                System.out.println();
             }
     }
 

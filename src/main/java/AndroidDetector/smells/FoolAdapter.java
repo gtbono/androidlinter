@@ -6,19 +6,18 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class FoolAdapter implements SmellsInterface {
 
-    public ArrayList<String> smellLocation;
+    public ArrayList<String> foundSmellMessage;
     private boolean smelly;
     private String pathApp;
 
     public FoolAdapter(String pathApp) {
-        this.smellLocation = new ArrayList<>();
+        this.foundSmellMessage = new ArrayList<>();
         this.smelly = false;
         this.pathApp = pathApp;
     }
@@ -40,7 +39,7 @@ public class FoolAdapter implements SmellsInterface {
                     var body = metodo.getBody().orElse(null);
                     var statements = body.getStatements();
                     for (var statement : statements) {
-                        if (statement.toString().contains("findViewById(")) {
+                        if (statement.toString().contains("findViewById(") || statement.toString().contains("inflate(")) {
                             //Detecta se é um If, pois estamos procurando a seguinte condicional
                             // if (convertView == null)
                             if (statement.isIfStmt()) {
@@ -54,13 +53,7 @@ public class FoolAdapter implements SmellsInterface {
                             }
                             //Se em alguma dessas expressões tiver o texto findViewById
                             // Quer dizer que o ViewHolder não está sendo utilizado, o que caracteriza o smell
-                            this.smellLocation.add(classe.getName().getIdentifier());
-                            this.smelly = true;
-                        }
-
-                        //Se ele infla um Layout em toda chamada ao getView, isso também caracteriza o smell
-                        if(statement.toString().contains("inflate(")) {
-                            this.smellLocation.add(classe.getName().getIdentifier());
+                            this.foundSmellMessage.add("Fool Adapter: Não foi detectado o uso do padrão ViewHolder na classe " + classe.getName().getIdentifier());
                             this.smelly = true;
                         }
                     }
@@ -71,9 +64,8 @@ public class FoolAdapter implements SmellsInterface {
 
     @Override
     public void run() {
-        System.out.println(this.getClass().toString());
-
         var parser = new Parser();
+
         var fileManager = new FileManager(pathApp);
 
         var arquivos = fileManager.findJavaFiles();
@@ -83,12 +75,10 @@ public class FoolAdapter implements SmellsInterface {
         findSmell(metodos);
 
         if(isSmelly()) {
-            System.out.println("Fool Adapter detectado nas classes: ");
-            for (var smellyClass : smellLocation) {
-                System.out.println(smellyClass);
+            for (var message : foundSmellMessage) {
+                System.out.println(message);
             }
         }
-        System.out.println();
     }
 
 }

@@ -8,15 +8,14 @@ import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
-
-import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class BrainUIComponent implements SmellsInterface {
 
     private boolean smelly;
-    public ArrayList<String> smellLocation;
+    public ArrayList<String> foundSmellMessage;
     private String pathApp;
     private ArrayList<String> importsProibidosNaUi;
 
@@ -28,7 +27,7 @@ public class BrainUIComponent implements SmellsInterface {
         importsProibidosNaUi.add("android.support.v4.database");
         importsProibidosNaUi.add("android.support.v4.net");
 
-        this.smellLocation = new ArrayList<>();
+        this.foundSmellMessage = new ArrayList<>();
         this.smelly = false;
         this.pathApp = pathApp;
     }
@@ -38,7 +37,6 @@ public class BrainUIComponent implements SmellsInterface {
     }
 
     private void findSmell(LinkedHashMap<ClassOrInterfaceDeclaration, NodeList<FieldDeclaration>> fieldDeclarations,
-                           LinkedHashMap<ClassOrInterfaceDeclaration, NodeList<BodyDeclaration<?>>> uiComponentMetodos,
                            LinkedHashMap<ClassOrInterfaceDeclaration, NodeList<ImportDeclaration>> classesEImports
     ) {
 
@@ -48,29 +46,13 @@ public class BrainUIComponent implements SmellsInterface {
 
             for (var field : fields) {
                 var modificadores = field.getModifiers();
+                var variaveis = field.getVariables();
                 for (var modificador : modificadores) {
-                    if(modificador.name().equals("static")) {
+                    if(modificador.name().equals("STATIC")) {
                         this.smelly = true;
-                        this.smellLocation.add(classe.getName().getIdentifier());
-                    }
-                }
-            }
-        }
-
-        for (var entry : uiComponentMetodos.entrySet()) {
-            var classe = entry.getKey();
-            var metodosUi = entry.getValue();
-
-            for (var metodo : metodosUi) {
-                var body = (MethodDeclaration) metodo;
-                var statements = body.getBody().get().getStatements();
-
-                for (var statement : statements) {
-                    if (statement.isExpressionStmt()) {
-                        //Se tiver chamada ao método com jdbc não pode
-                        if (statement.toString().contains("jdbc")) {
-                            this.smellLocation.add(classe.getName().getIdentifier());
-                            this.smelly = true;
+                        //Tem que adicionar para cada variável pois pode ter mais de uma variável em uma declaração
+                        for (var variavel : variaveis) {
+                            this.foundSmellMessage.add("Brain UI Component: Encontrado modificador estático [" + variavel.getName().getIdentifier() + "] na classe " + classe.getName().getIdentifier());
                         }
                     }
                 }
@@ -83,14 +65,8 @@ public class BrainUIComponent implements SmellsInterface {
 
             for (var importDaClasse : importsDaClasse) {
                 for (var importProibido : this.importsProibidosNaUi) {
-                    //var stringBuilder = new StringBuilder();
-                    //while (!importDaClasse.getName().getQualifier().toString().isEmpty()) {
-                    //    stringBuilder.append(importDaClasse.getName().getQualifier().toString());
-                    //}
-                    //var fullImportName = stringBuilder.toString();
-                    ////if (importDaClasse.getName().getQualifier().contains(importProibido)) {
-                    if (importProibido.matches(importProibido)) {
-                        this.smellLocation.add(classe.getName().getIdentifier());
+                    if(importDaClasse.toString().contains(importProibido)) {
+                        this.foundSmellMessage.add("Brain UI Component: Encontrado import com métodos de I/O [" + importProibido + "] na classe " + classe.getName().getIdentifier());
                         this.smelly = true;
                     }
                 }
@@ -100,28 +76,23 @@ public class BrainUIComponent implements SmellsInterface {
 
     @Override
     public void run() {
-        System.out.println(this.getClass().toString());
-
         var parser = new Parser();
+
         var fileManager = new FileManager(pathApp);
 
         var arquivos = fileManager.findJavaFiles();
 
         var fieldDeclarations = parser.getUiComponentFieldDeclarations(arquivos);
 
-        var uiComponentMetodos = parser.getUiComponentMethods(arquivos);
-
         var classesEImports = parser.getImports(arquivos);
 
-        findSmell(fieldDeclarations, uiComponentMetodos, classesEImports);
+        findSmell(fieldDeclarations, classesEImports);
 
         if(isSmelly()) {
-            System.out.println("Brain UI Component detectado nas classes:");
-            for (var smellyClass : smellLocation) {
-                System.out.println(smellyClass);
+            for (var message : foundSmellMessage) {
+                System.out.println(message);
             }
         }
-        System.out.println();
     }
 
 }

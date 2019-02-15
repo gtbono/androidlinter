@@ -27,6 +27,7 @@ public class FileManager {
                     .filter(Files::isRegularFile)
                     .forEach((f)->{
                         File file = f.toFile();
+                        // && !file.toString().matches("generated")
                         if(file.toString().endsWith(".java"))
                             javaFiles.add(file);
                     });

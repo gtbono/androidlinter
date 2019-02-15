@@ -25,9 +25,7 @@ public class App {
         Set<SmellsInterface> smellsList = new HashSet<>();
         smellsList.add(new FlexAdapter(getAppDirectory()));
         smellsList.add(new FoolAdapter(getAppDirectory()));
-        //smellsList.add(new BrainUIComponent(getAppDirectory()));
-        smellsList.add(new ObscureNames());
-        smellsList.add(new AbscenceOfAnArchitecture());
+        smellsList.add(new BrainUIComponent(getAppDirectory()));
         return smellsList;
     }
 }
