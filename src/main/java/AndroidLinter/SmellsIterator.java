@@ -1,6 +1,6 @@
-package AndroidDetector;
+package AndroidLinter;
 
-import AndroidDetector.smells.SmellsInterface;
+import AndroidLinter.smells.SmellsInterface;
 
 import java.util.Iterator;
 import java.util.Set;

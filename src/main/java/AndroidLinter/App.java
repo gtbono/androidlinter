@@ -1,6 +1,6 @@
-package AndroidDetector;
+package AndroidLinter;
 
-import AndroidDetector.smells.*;
+import AndroidLinter.smells.*;
 
 import java.util.HashSet;
 import java.util.Set;

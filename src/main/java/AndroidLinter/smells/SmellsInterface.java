@@ -1,4 +1,4 @@
-package AndroidDetector.smells;
+package AndroidLinter.smells;
 
 public interface SmellsInterface {
 

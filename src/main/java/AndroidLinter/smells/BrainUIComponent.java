@@ -1,15 +1,13 @@
-package AndroidDetector.smells;
+package AndroidLinter.smells;
 
-import AndroidDetector.FileManager;
-import AndroidDetector.Parser;
+import AndroidLinter.FileManager;
+import AndroidLinter.Parser;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class BrainUIComponent implements SmellsInterface {

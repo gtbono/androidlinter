@@ -1,6 +1,4 @@
-package AndroidDetector;
-
-import org.apache.commons.io.FileUtils;
+package AndroidLinter;
 
 import java.io.File;
 import java.io.IOException;

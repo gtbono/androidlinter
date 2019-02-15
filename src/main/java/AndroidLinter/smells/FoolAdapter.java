@@ -1,7 +1,7 @@
-package AndroidDetector.smells;
+package AndroidLinter.smells;
 
-import AndroidDetector.FileManager;
-import AndroidDetector.Parser;
+import AndroidLinter.FileManager;
+import AndroidLinter.Parser;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
