@@ -7,6 +7,12 @@ import java.util.Set;
 
 public class App {
 
+    private String appDirectory;
+
+    public App(String appDirectory) {
+        this.appDirectory = appDirectory;
+    }
+
     public void run () {
 
         SmellsIterator iterator = new SmellsIterator(getSmells());
@@ -17,15 +23,12 @@ public class App {
 
     }
 
-    private String getAppDirectory() {
-        return "C:\\Users\\gtbono\\Code\\Cursos-Alura\\Cursos-Alura";
-    }
-
     private Set<SmellsInterface> getSmells() {
         Set<SmellsInterface> smellsList = new HashSet<>();
-        smellsList.add(new FlexAdapter(getAppDirectory()));
-        smellsList.add(new FoolAdapter(getAppDirectory()));
-        smellsList.add(new BrainUIComponent(getAppDirectory()));
+        SmellsFactory smellsFactory = new SmellsFactory(this.appDirectory);
+        smellsList.add(smellsFactory.buildFlexAdapter());
+        smellsList.add(smellsFactory.buildFoolAdapter());
+        smellsList.add(smellsFactory.buildBrainUIComponent());
         return smellsList;
     }
 }
