@@ -6,14 +6,13 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class BrainUIComponent implements SmellsInterface {
 
     private boolean smelly;
-    public ArrayList<String> foundSmellMessage;
+    private ArrayList<String> foundSmellMessage;
     private String pathApp;
     private ArrayList<String> importsProibidosNaUi;
 

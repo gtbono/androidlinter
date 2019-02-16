@@ -1,4 +1,4 @@
-import AndroidLinter.App;
+package AndroidLinter;
 
 import java.io.File;
 

@@ -8,15 +8,15 @@ public class SmellsFactory {
         this.pathApp = pathApp;
     }
 
-    public BrainUIComponent buildBrainUIComponent() {
+    public SmellsInterface buildBrainUIComponent() {
         return new BrainUIComponent(pathApp);
     }
 
-    public FlexAdapter buildFlexAdapter() {
+    public SmellsInterface buildFlexAdapter() {
         return new FlexAdapter(pathApp);
     }
 
-    public FoolAdapter buildFoolAdapter() {
+    public SmellsInterface buildFoolAdapter() {
         return new FoolAdapter(pathApp);
     }
 

@@ -1,7 +1,6 @@
 package AndroidLinter;
 
 import AndroidLinter.smells.*;
-
 import java.util.HashSet;
 import java.util.Set;
 

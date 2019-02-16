@@ -6,7 +6,6 @@ import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ public class Parser {
     }
 
     private LinkedHashMap<ClassOrInterfaceDeclaration, NodeList<ImportDeclaration>> parseImports(ArrayList<CompilationUnit> compilationUnitList) {
-        //var types = new NodeList<ClassOrInterfaceDeclaration>();
         var classesEImports = new LinkedHashMap<ClassOrInterfaceDeclaration, NodeList<ImportDeclaration>>();
         for (var compilationUnit : compilationUnitList) {
             //Só executa se tiver imports

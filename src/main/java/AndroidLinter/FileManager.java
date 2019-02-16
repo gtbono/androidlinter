@@ -14,10 +14,6 @@ public class FileManager {
         this.pathApp = pathApp;
     }
 
-    public File[] findFiles() {
-        return new File(pathApp).listFiles();
-    }
-
     public File[] findJavaFiles() {
         var javaFiles = new ArrayList<File>();
         try {
