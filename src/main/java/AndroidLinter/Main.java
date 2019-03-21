@@ -9,6 +9,7 @@ public class Main {
             System.out.println("Executar com a seguinte sintaxe");
             System.out.println("androidlinter.jar <diretorio>");
             System.out.println("Onde <diretorio> é a pasta raiz de um projeto Android");
+            System.exit(0);
         }
 
         //Cria um objeto do tipo arquivo com o primeiro argumento, que deve ser o nome de um diretório.
