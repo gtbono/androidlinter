@@ -43,7 +43,13 @@ public class FoolAdapter implements SmellsInterface {
                             //Detecta se é um If, pois estamos procurando a seguinte condicional
                             // if (convertView == null)
                             if (statement.isIfStmt()) {
+                                if (!statement.asIfStmt().getCondition().isBinaryExpr()) {
+                                    break;
+                                }
                                 var ifStatement = statement.asIfStmt().getCondition().asBinaryExpr();
+                                    if (!ifStatement.getLeft().isNameExpr()) {
+                                        break;
+                                    }
                                     var leftSide = ifStatement.getLeft().asNameExpr().getName().getIdentifier();
                                     var rightSide = ifStatement.getRight();
                                     if (leftSide.equals(nomeVariavelConvertView) && rightSide.isNullLiteralExpr()) {

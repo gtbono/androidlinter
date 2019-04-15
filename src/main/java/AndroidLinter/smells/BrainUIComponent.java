@@ -56,9 +56,19 @@ public class BrainUIComponent implements SmellsInterface {
             }
         }
 
-        for (var entry : classesEImports.entrySet()) {
+        classe: for (var entry : classesEImports.entrySet()) {
             var classe = entry.getKey();
             var importsDaClasse = entry.getValue();
+
+            var extendedTypes = classe.getExtendedTypes();
+
+            if(extendedTypes.isNonEmpty()) {
+                for(var type : extendedTypes) {
+                    if(!type.getName().getIdentifier().equals("Activity|Fragment|BaseAdapter")) {
+                        break classe;
+                    }
+                }
+            }
 
             for (var importDaClasse : importsDaClasse) {
                 for (var importProibido : this.importsProibidosNaUi) {
